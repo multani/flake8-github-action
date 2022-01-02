@@ -19,6 +19,10 @@ inputs:
     default: flake8 --exit-zero
     required: false
 
+  working-directory:
+    description: The directory to execute Flake8 from.
+    required: false
+
 runs:
   using: node12
   main: dist/index.js

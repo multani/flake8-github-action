@@ -39,15 +39,16 @@ const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
 const github = __importStar(__nccwpck_require__(5438));
 const { GITHUB_TOKEN } = process.env;
-function runFlake8(command) {
+function runFlake8(command, cwd) {
     return __awaiter(this, void 0, void 0, function* () {
-        let myOutput = "";
+        let myOutput = '';
         let options = {
+            cwd: cwd,
             listeners: {
                 stdout: (data) => {
                     myOutput += data.toString();
-                },
-            },
+                }
+            }
         };
         yield exec.exec(command, [], options);
         return myOutput;
@@ -62,17 +63,17 @@ function parseFlake8Output(output) {
     // Group 4: error code
     // Group 5: error description
     let regex = new RegExp(/^(.*?):(\d+):(\d+): (\w\d+) ([\s|\w]*)/);
-    let errors = output.split("\n");
+    let errors = output.split('\n');
     let annotations = [];
     for (let i = 0; i < errors.length; i++) {
         let error = errors[i];
         let match = error.match(regex);
         if (match) {
             // Chop `./` off the front so that Github will recognize the file path
-            const normalized_path = match[1].replace("./", "");
+            const normalized_path = match[1].replace('./', '');
             const line = parseInt(match[2]);
             const column = parseInt(match[3]);
-            const annotation_level = "failure";
+            const annotation_level = 'failure';
             const annotation = {
                 path: normalized_path,
                 start_line: line,
@@ -80,7 +81,7 @@ function parseFlake8Output(output) {
                 start_column: column,
                 end_column: column,
                 annotation_level,
-                message: `[${match[4]}] ${match[5]}`,
+                message: `[${match[4]}] ${match[5]}`
             };
             annotations.push(annotation);
         }
@@ -95,20 +96,21 @@ function createCheck(check_name, title, annotations) {
         yield octokit.rest.checks.update(Object.assign(Object.assign({}, github.context.repo), { check_run_id, output: {
                 title,
                 summary: `${annotations.length} errors(s) found`,
-                annotations,
+                annotations
             } }));
     });
 }
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const flake8Command = core.getInput("command");
-            const flake8Output = yield runFlake8(flake8Command);
+            const command = core.getInput('command');
+            const cwd = core.getInput('working-directory');
+            const flake8Output = yield runFlake8(command, cwd);
             const annotations = parseFlake8Output(flake8Output);
             if (annotations.length > 0) {
                 console.log(annotations);
-                const checkName = core.getInput("check-name");
-                yield createCheck(checkName, "flake8 failure", annotations);
+                const checkName = core.getInput('check-name');
+                yield createCheck(checkName, 'flake8 failure', annotations);
                 core.setFailed(`${annotations.length} errors(s) found`);
             }
         }

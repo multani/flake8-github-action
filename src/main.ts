@@ -1,7 +1,6 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as github from '@actions/github';
-import * as octokit from '@octokit/rest';
 
 const { GITHUB_TOKEN } = process.env;
 
@@ -18,7 +17,18 @@ async function runFlake8() {
   return myOutput;
 }
 
-type Annotation = octokit.ChecksUpdateParamsOutputAnnotations;
+interface Annotation {
+    annotation_level: "notice" | "warning" | "failure"
+    end_column?: undefined | number
+    end_line: number
+    message: string
+    path: string
+    raw_details?: undefined | string
+    start_column?: undefined | number
+    start_line: number
+    title?: undefined | string
+}
+
 // Regex the output for error lines, then format them in
 function parseFlake8Output(output: string): Annotation[] {
   // Group 0: whole match
@@ -56,8 +66,8 @@ function parseFlake8Output(output: string): Annotation[] {
 }
 
 async function createCheck(check_name: string, title: string, annotations: Annotation[]) {
-  const octokit = new github.GitHub(String(GITHUB_TOKEN));
-  const res = await octokit.checks.listForRef({
+  const octokit = github.getOctokit(String(GITHUB_TOKEN));
+  const res = await octokit.rest.checks.listForRef({
     check_name,
     ...github.context.repo,
     ref: github.context.sha
@@ -65,7 +75,7 @@ async function createCheck(check_name: string, title: string, annotations: Annot
 
   const check_run_id = res.data.check_runs[0].id;
 
-  await octokit.checks.update({
+  await octokit.rest.checks.update({
     ...github.context.repo,
     check_run_id,
     output: {

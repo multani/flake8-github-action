@@ -1,13 +1,16 @@
 # `flake8` Github Action
 
-This is a Github Action to run `flake8` against your repository. It uses the new Github Actions API and JavaScript toolkit. It does fancy things like add annotations to your PRs inline.
+This is a Github Action to run `flake8` against your repository.
+
+It does fancy things like add annotations to your PRs inline.
 
 ![image](docs/image.png)
 
 Use it in your project like:
 
 (in `.github/workflows/lint.yml`)
-```
+
+```yaml
 name: Lint
 
 on:
@@ -16,22 +19,23 @@ on:
       - '*.py'
 
 jobs:
-  flake8_py3:
+  flake8:
     runs-on: ubuntu-latest
+
     steps:
       - name: Setup Python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v2
         with:
-          python-version: 3.7.4
-          architecture: x64
-      - name: Checkout PyTorch
-        uses: actions/checkout@master
+          python-version: 3.9
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Install flake8
         run: pip install flake8
+
       - name: Run flake8
-        uses: suo/flake8-github-action@releases/v1
+        uses: multani/flake8-github-action@v1
         with:
-          checkName: 'flake8_py3'   # NOTE: this needs to be the same as the job name
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          check-name: flake8
 ```

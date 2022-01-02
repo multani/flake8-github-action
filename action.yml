@@ -1,4 +1,4 @@
-name: Flake8 action
+name: Flake8 annotation
 description: Run flake8 and annotate the results
 author: multani
 
@@ -7,7 +7,7 @@ branding:
   color: yellow
 
 inputs:
-  checkName:
+  check-name:
     description: |
       The name of the check to add annotations to.
 

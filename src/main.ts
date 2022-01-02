@@ -4,7 +4,7 @@ import * as github from '@actions/github';
 
 const { GITHUB_TOKEN } = process.env;
 
-async function runFlake8() {
+async function runFlake8(command: string) {
   let myOutput = '';
   let options = {
     listeners: {
@@ -13,7 +13,7 @@ async function runFlake8() {
       },
     }
   };
-  await exec.exec('flake8 --exit-zero', [], options);
+  await exec.exec(command, [], options);
   return myOutput;
 }
 
@@ -88,11 +88,12 @@ async function createCheck(check_name: string, title: string, annotations: Annot
 
 async function run() {
   try {
-    const flake8Output = await runFlake8();
+    const flake8Command = core.getInput('command');
+    const flake8Output = await runFlake8(flake8Command);
     const annotations = parseFlake8Output(flake8Output);
     if (annotations.length > 0) {
       console.log(annotations);
-      const checkName = core.getInput('checkName');
+      const checkName = core.getInput('check-name');
       await createCheck(checkName, "flake8 failure", annotations);
       core.setFailed(`${annotations.length} errors(s) found`);
     }

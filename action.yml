@@ -7,7 +7,7 @@ branding:
   color: yellow
 
 inputs:
-  check-name:
+  checkName:
     description: |
       The name of the check to add annotations to.
 

@@ -37,5 +37,5 @@ jobs:
       - name: Run flake8
         uses: multani/flake8-github-action@v1
         with:
-          check-name: flake8
+          checkName: flake8
 ```

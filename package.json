@@ -26,7 +26,7 @@
     "@actions/exec": "^1.1.0"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.13",
+    "@types/jest": "^27.4.0",
     "@types/node": "^17.0.6",
     "jest": "^24.9.0",
     "jest-circus": "^24.7.1",
